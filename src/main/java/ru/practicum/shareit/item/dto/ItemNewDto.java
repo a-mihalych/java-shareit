@@ -9,7 +9,6 @@ import javax.validation.constraints.Size;
 @Setter
 @Getter
 @ToString
-@EqualsAndHashCode(of = "id")
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor

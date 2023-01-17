@@ -2,13 +2,14 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.error.exception.ConflictException;
 import ru.practicum.shareit.error.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemNewDto;
-import ru.practicum.shareit.item.mapper.ItemDtoToModel;
-import ru.practicum.shareit.item.mapper.ItemModelToDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserValidation;
 
 import java.util.ArrayList;
@@ -26,11 +27,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemDto> itemsForId(Integer userId) {
         List<Item> items = new ArrayList<>(itemRepository.itemsForUserId(userId).values());
-        if (items.isEmpty()) {
-            return new ArrayList<>();
-        }
         return items.stream()
-                    .map(ItemModelToDto::itemToItemDto)
+                    .map(ItemMapper::toItemDto)
                     .collect(Collectors.toList());
     }
 
@@ -40,7 +38,7 @@ public class ItemServiceImpl implements ItemService {
         if (item == null) {
             throw new NotFoundException(String.format("Не найдена вещь с id = %d", itemId));
         }
-        return ItemModelToDto.itemToItemDto(item);
+        return ItemMapper.toItemDto(item);
     }
 
     @Override
@@ -53,22 +51,30 @@ public class ItemServiceImpl implements ItemService {
             return new ArrayList<>();
         }
         return items.stream()
-                    .map(ItemModelToDto::itemToItemDto)
+                    .map(ItemMapper::toItemDto)
                     .collect(Collectors.toList());
     }
 
     @Override
     public ItemDto addItem(Integer userId, ItemNewDto itemNewDto) {
-        userValidation.notFoundUserValidation(userId);
-        Item item = ItemDtoToModel.itemNewDtoToItem(itemNewDto);
-        return ItemModelToDto.itemToItemDto(itemRepository.addItem(userId, item));
+        User user = userValidation.notFoundUserValidation(userId);
+        Item item = ItemMapper.toItem(itemNewDto);
+        item.setOwner(user);
+        return ItemMapper.toItemDto(itemRepository.addItem(item));
     }
 
     @Override
     public ItemDto updateItem(Integer userId, ItemDto itemDto, Integer itemId) {
         userValidation.notFoundUserValidation(userId);
         Item item = itemValidation.notFoundItemValidation(userId, itemId);
-        item = ItemDtoToModel.itemDtoToItem(itemDto, item);
-        return ItemModelToDto.itemToItemDto(itemRepository.updateItem(userId, item));
+        if ((itemDto.getId() != null) && !(itemDto.getId().equals(itemId))) {
+            throw new ConflictException(String.format("Обноновление прервано, разные id, %d не равно %d",
+                                                      itemDto.getId(), itemId));
+        }
+        if (!item.getOwner().getId().equals(userId)) {
+            return itemDto;
+        }
+        item = ItemMapper.toItem(itemDto, item);
+        return ItemMapper.toItemDto(itemRepository.updateItem(userId, item));
     }
 }

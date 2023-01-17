@@ -45,8 +45,9 @@ public class ItemRepositoryImpl implements ItemRepository {
     }
 
     @Override
-    public Item addItem(Integer userId, Item item) {
+    public Item addItem(Item item) {
         item.setId(nextId());
+        Integer userId = item.getOwner().getId();
         if (!items.containsKey(userId)) {
             items.put(userId, new HashMap<>());
         }

@@ -13,7 +13,7 @@ public interface ItemRepository {
 
     List<Item> searchItem(String text);
 
-    Item addItem(Integer userId, Item item);
+    Item addItem(Item item);
 
     Item updateItem(Integer userId, Item item);
 }
