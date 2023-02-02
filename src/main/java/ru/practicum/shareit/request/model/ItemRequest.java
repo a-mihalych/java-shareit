@@ -1,8 +1,9 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.request.model;
 
 import lombok.*;
-import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
+
+import java.time.LocalDateTime;
 
 @Setter
 @Getter
@@ -11,12 +12,10 @@ import ru.practicum.shareit.user.model.User;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Item {
+public class ItemRequest {
 
     private Integer id;
-    private String name;
     private String description;
-    private Boolean available;
-    private User owner;
-    private ItemRequest itemRequest;
+    private User requestor;
+    private LocalDateTime created;
 }
