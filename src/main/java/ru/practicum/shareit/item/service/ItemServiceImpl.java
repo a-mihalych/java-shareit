@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.error.exception.ConflictException;
+import ru.practicum.shareit.error.exception.ForbiddenOperationException;
 import ru.practicum.shareit.error.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemNewDto;
@@ -72,7 +73,8 @@ public class ItemServiceImpl implements ItemService {
                                                       itemDto.getId(), itemId));
         }
         if (!item.getOwner().getId().equals(userId)) {
-            return itemDto;
+            throw new ForbiddenOperationException(String.format(
+                    "Обноновление прервано, пользователь с id = %d не является владельцем вещи", userId));
         }
         item = ItemMapper.toItem(itemDto, item);
         return ItemMapper.toItemDto(itemRepository.updateItem(userId, item));
