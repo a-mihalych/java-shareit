@@ -21,13 +21,13 @@ public class BookingMapper {
                 .build();
     }
 
-    public static BookingNextDto toBookingNextDto(Booking booking) {
+    public static BookingNextDto toBookingNextDto(BookingDto bookingDto) {
         return BookingNextDto.builder()
-                .id(booking.getId())
-                .start(booking.getStart())
-                .end(booking.getEnd())
-                .bookerId(booking.getBooker().getId())
-                .status(booking.getStatus())
+                .id(bookingDto.getId())
+                .start(bookingDto.getStart())
+                .end(bookingDto.getEnd())
+                .bookerId(bookingDto.getBooker().getId())
+                .status(bookingDto.getStatus())
                 .build();
     }
 

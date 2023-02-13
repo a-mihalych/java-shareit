@@ -7,6 +7,9 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingNewDto;
 import ru.practicum.shareit.booking.model.StatusBooking;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.error.exception.ShareitException;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -18,19 +21,28 @@ import java.util.List;
 public class BookingController {
 
     private final BookingService bookingService;
+    private final ItemService itemService;
 
     @GetMapping
     public List<BookingDto> bookingForUserId(@RequestHeader("X-Sharer-User-Id") Integer userId,
                                              @RequestParam(name = "state", defaultValue = "ALL") String state) {
         log.info("* Запрос Get: получение списка всех бронирований текущего пользователя, id = {}", userId);
-        return bookingService.bookingForUserId(userId, state);
+        StatusBooking status = StatusBooking.from(state);
+        if (status == null) {
+            throw new ShareitException(String.format("Unknown state: %s", state));
+        }
+        return bookingService.bookingForUserId(userId, status);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> bookingAllItemForUserId(@RequestHeader("X-Sharer-User-Id") Integer userId,
                                                     @RequestParam(name = "state", defaultValue = "ALL") String state) {
         log.info("* Запрос Get: получение списка бронирований для всех вещей текущего пользователя, id = {}", userId);
-        return bookingService.bookingAllItemForUserId(userId, state);
+        StatusBooking status = StatusBooking.from(state);
+        if (status == null) {
+            throw new ShareitException(String.format("Unknown state: %s", state));
+        }
+        return bookingService.bookingAllItemForUserId(userId, status);
     }
 
     @GetMapping("/{bookingId}")
@@ -45,7 +57,8 @@ public class BookingController {
                                  @Valid @RequestBody BookingNewDto bookingNewDto) {
         log.info("* Запрос Post: добавление нового запроса на бронирование вещи {}, пользователем с id = {}",
                  bookingNewDto, userId);
-        return bookingService.addBooking(userId, bookingNewDto);
+        ItemDto itemDto = itemService.itemById(userId, bookingNewDto.getItemId());
+        return bookingService.addBooking(userId, bookingNewDto, itemDto);
     }
 
     @PatchMapping("/{bookingId}")

@@ -40,7 +40,7 @@ public class ItemMapper {
 
     public static Item toItem(ItemDto itemDto, Item item) {
         return Item.builder()
-                   .id(item.getId())
+                   .id(itemDto.getId() != null ? itemDto.getId() : item.getId())
                    .name(itemDto.getName() != null ? itemDto.getName() : item.getName())
                    .description(itemDto.getDescription() != null ? itemDto.getDescription() : item.getDescription())
                    .available(itemDto.getAvailable() != null ? itemDto.getAvailable() : item.getAvailable())

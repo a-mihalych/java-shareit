@@ -3,10 +3,11 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingNextDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
-import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.booking.model.StatusBooking;
+import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.error.exception.ForbiddenOperationException;
 import ru.practicum.shareit.error.exception.NotFoundException;
 import ru.practicum.shareit.error.exception.ValidationException;
@@ -19,8 +20,9 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,13 +35,13 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
-    private final UserRepository userRepository;
-    private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final UserService userService;
+    private final BookingService bookingService;
 
     @Override
     public List<ItemDto> itemsForId(Integer userId) {
-        List<Booking> bookings = bookingRepository.findAllForItemsOwner(userId);
+        List<BookingDto> bookingsDto = bookingService.bookingAllItemForUserId(userId, StatusBooking.ALL);
         List<Item> items = itemRepository.findAllByOwnerIdOrderByIdAsc(userId);
         List<ItemDto> itemsDto = new ArrayList<>();
         BookingNextDto bookingNext;
@@ -49,12 +51,12 @@ public class ItemServiceImpl implements ItemService {
         for (Item item : items) {
             bookingNext = null;
             bookingLast = null;
-            for (Booking booking : bookings) {
-                if (bookingNext != null && booking.getItem().getId().equals(item.getId())) {
-                    bookingLast = BookingMapper.toBookingNextDto(booking);
+            for (BookingDto bookingDto : bookingsDto) {
+                if (bookingNext != null && bookingDto.getItem().getId().equals(item.getId())) {
+                    bookingLast = BookingMapper.toBookingNextDto(bookingDto);
                 }
-                if (bookingNext == null && booking.getItem().getId().equals(item.getId())) {
-                    bookingNext = BookingMapper.toBookingNextDto(booking);
+                if (bookingNext == null && bookingDto.getItem().getId().equals(item.getId())) {
+                    bookingNext = BookingMapper.toBookingNextDto(bookingDto);
                 }
             }
             comments = commentRepository.findAllByItemIdOrderByCreatedDesc(item.getId());
@@ -71,10 +73,11 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> {
             throw new NotFoundException(String.format("Не найдена вещь с id = %d", itemId));
         });
-        List<Booking> bookings = bookingRepository.findAllByItemIdAndItemOwnerIdOrderByStartDesc(itemId, userId);
-        BookingNextDto bookingNext = bookings.size() > 0 ? BookingMapper.toBookingNextDto(bookings.get(0)) : null;
-        BookingNextDto bookingLast = bookings.size() > 1 ?
-                BookingMapper.toBookingNextDto(bookings.get(bookings.size() - 1)) : null;
+        userService.userById(userId);
+        List<BookingDto> bookingsDto = bookingService.bookingItemForOwnerId(userId, itemId);
+        BookingNextDto bookingNext = bookingsDto.size() > 0 ? BookingMapper.toBookingNextDto(bookingsDto.get(0)) : null;
+        BookingNextDto bookingLast = bookingsDto.size() > 1 ?
+                BookingMapper.toBookingNextDto(bookingsDto.get(bookingsDto.size() - 1)) : null;
         List<Comment> comments = commentRepository.findAllByItemIdOrderByCreatedDesc(itemId);
         List<CommentDto> commentsDto = comments.stream()
                                                .map(ItemMapper::toCommentDto)
@@ -96,9 +99,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemDto addItem(Integer userId, ItemNewDto itemNewDto) {
-        User user = userRepository.findById(userId).orElseThrow(() -> {
-            throw new NotFoundException(String.format("Не найден пользователь с id = %d", userId));
-        });
+        User user = UserMapper.toUser(userService.userById(userId), new User());
         return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItem(itemNewDto, user)));
     }
 
@@ -110,9 +111,7 @@ public class ItemServiceImpl implements ItemService {
                 throw new ForbiddenOperationException("Обновление прервано, вещь другого пользователя");
             }
         }
-        userRepository.findById(userId).orElseThrow(() -> {
-            throw new NotFoundException(String.format("Не найден пользователь с id = %d", userId));
-        });
+        userService.userById(userId);
         Item item = itemRepository.findById(itemId).orElseThrow(() -> {
             throw new NotFoundException(String.format("Не найдена вещь с id = %d", itemId));
         });
@@ -126,15 +125,12 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public CommentDto addComment(Integer userId, Integer itemId, CommentNewDto commentNewDto) {
-        User user = userRepository.findById(userId).orElseThrow(() -> {
-            throw new NotFoundException(String.format("Не найден пользователь с id = %d", userId));
-        });
+        User user = UserMapper.toUser(userService.userById(userId), new User());
         Item item = itemRepository.findById(itemId).orElseThrow(() -> {
             throw new NotFoundException(String.format("Не найдена вещь с id = %d", itemId));
         });
-        List<Booking> bookings = bookingRepository.findAllByBookerIdAndItemIdAndStartBefore(userId, itemId,
-                                                                                            LocalDateTime.now());
-        if (bookings.isEmpty()) {
+        List<BookingDto> bookingsDto = bookingService.bookingItemForBookerId(userId, itemId, LocalDateTime.now());
+        if (bookingsDto.isEmpty()) {
             throw new ValidationException(String.format("Добавление коментария прервано, " +
                     "пользователь с id = %d не брал в аренду вещь с id = %d", itemId, itemId));
         }
