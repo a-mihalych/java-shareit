@@ -20,6 +20,9 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.mapper.ItemRequestMapper;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
@@ -41,7 +44,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> itemsForId(Integer userId) {
-        List<BookingDto> bookingsDto = bookingService.bookingAllItemForUserId(userId, StatusBooking.ALL);
+        List<BookingDto> bookingsDto = bookingService.bookingAllItemForUserId(userId, StatusBooking.ALL, 0, 10);
         List<Item> items = itemRepository.findAllByOwnerIdOrderByIdAsc(userId);
         List<ItemDto> itemsDto = new ArrayList<>();
         BookingNextDto bookingNext;
@@ -98,9 +101,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto addItem(Integer userId, ItemNewDto itemNewDto) {
+    public ItemDto addItem(Integer userId, ItemNewDto itemNewDto, ItemRequestDto requestDto) {
         User user = UserMapper.toUser(userService.userById(userId), new User());
-        return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItem(itemNewDto, user)));
+        ItemRequest itemRequest = null;
+        if (requestDto != null) {
+            itemRequest = ItemRequestMapper.toItemRequest(requestDto, user);
+        }
+        return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItem(itemNewDto, user, itemRequest)));
     }
 
     @Override
@@ -135,5 +142,12 @@ public class ItemServiceImpl implements ItemService {
                     "пользователь с id = %d не брал в аренду вещь с id = %d", itemId, itemId));
         }
         return ItemMapper.toCommentDto(commentRepository.save(ItemMapper.toComment(commentNewDto, user, item)));
+    }
+
+    @Override
+    public List<ItemDto> itemByRequestId(Integer requestId) {
+        return itemRepository.findAllByItemRequestId(requestId).stream()
+                                                               .map(ItemMapper::toItemDto)
+                                                               .collect(Collectors.toList());
     }
 }

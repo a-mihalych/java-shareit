@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -85,66 +87,72 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> bookingForUserId(Integer userId, StatusBooking status) {
+    public List<BookingDto> bookingForUserId(Integer userId, StatusBooking status, Integer from, Integer size) {
         userService.userById(userId);
-        List<Booking> bookings;
+        PageRequest pageRequest = PageRequest.of(from / size, size);
+        Page<Booking> bookingsPage;
         switch (status) {
             case CURRENT:
-                bookings = bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
-                                             userId, LocalDateTime.now(), LocalDateTime.now());
+                bookingsPage = bookingRepository.findAllByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                                            userId, LocalDateTime.now(), LocalDateTime.now(), pageRequest);
                 break;
             case PAST:
-                bookings = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId, LocalDateTime.now());
+                bookingsPage = bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(
+                                            userId, LocalDateTime.now(), pageRequest);
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, WAITING);
+                bookingsPage = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+                                            userId, WAITING, pageRequest);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
+                bookingsPage = bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(
+                                            userId, LocalDateTime.now(), pageRequest);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(userId, REJECTED);
+                bookingsPage = bookingRepository.findAllByBookerIdAndStatusOrderByStartDesc(
+                                            userId, REJECTED, pageRequest);
                 break;
             case ALL:
-                bookings = bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
+                bookingsPage = bookingRepository.findAllByBookerIdOrderByStartDesc(userId, pageRequest);
                 break;
             default:
                 throw new ShareitException(String.format("Unknown state: %s", status));
         }
-        return bookings.stream()
-                       .map(BookingMapper::toBookingDto)
-                       .collect(Collectors.toList());
+        return bookingsPage.stream()
+                           .map(BookingMapper::toBookingDto)
+                           .collect(Collectors.toList());
     }
 
     @Override
-    public List<BookingDto> bookingAllItemForUserId(Integer userId, StatusBooking status) {
+    public List<BookingDto> bookingAllItemForUserId(Integer userId, StatusBooking status, Integer from, Integer size) {
         userService.userById(userId);
-        List<Booking> bookings;
+        PageRequest pageRequest = PageRequest.of(from / size, size);
+        Page<Booking> bookingsPage;
         switch (status) {
             case CURRENT:
-                bookings = bookingRepository.findAllCurrentForItemsOwner(userId, LocalDateTime.now());
+                bookingsPage = bookingRepository.findAllCurrentForItemsOwner(userId, LocalDateTime.now(), pageRequest);
                 break;
             case PAST:
-                bookings = bookingRepository.findAllPastForItemsOwner(userId, LocalDateTime.now());
+                bookingsPage = bookingRepository.findAllPastForItemsOwner(userId, LocalDateTime.now(), pageRequest);
                 break;
             case WAITING:
-                bookings = bookingRepository.findAllForItemsOwnerByStatus(userId, WAITING);
+                bookingsPage = bookingRepository.findAllForItemsOwnerByStatus(userId, WAITING, pageRequest);
                 break;
             case FUTURE:
-                bookings = bookingRepository.findAllFutureForItemsOwner(userId, LocalDateTime.now());
+                bookingsPage = bookingRepository.findAllFutureForItemsOwner(userId, LocalDateTime.now(), pageRequest);
                 break;
             case REJECTED:
-                bookings = bookingRepository.findAllForItemsOwnerByStatus(userId, REJECTED);
+                bookingsPage = bookingRepository.findAllForItemsOwnerByStatus(userId, REJECTED, pageRequest);
                 break;
             case ALL:
-                bookings = bookingRepository.findAllForItemsOwner(userId);
+                bookingsPage = bookingRepository.findAllForItemsOwner(userId, pageRequest);
                 break;
             default:
                 throw new ShareitException(String.format("Unknown state: %s", status));
         }
-        return bookings.stream()
-                .map(BookingMapper::toBookingDto)
-                .collect(Collectors.toList());
+        return bookingsPage.stream()
+                           .map(BookingMapper::toBookingDto)
+                           .collect(Collectors.toList());
     }
 
     @Override

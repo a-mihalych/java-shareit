@@ -15,4 +15,6 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
            "and (lower(item.name) like %?1% " +
            "or lower(item.description) like %?1%)")
     List<Item> findItem(String text);
+
+    List<Item> findAllByItemRequestId(Integer requestId);
 }

@@ -16,9 +16,9 @@ public interface BookingService {
 
     BookingDto bookingById(Integer userId, Integer bookingId);
 
-    List<BookingDto> bookingForUserId(Integer userId, StatusBooking status);
+    List<BookingDto> bookingForUserId(Integer userId, StatusBooking status, Integer from, Integer size);
 
-    List<BookingDto> bookingAllItemForUserId(Integer userId, StatusBooking status);
+    List<BookingDto> bookingAllItemForUserId(Integer userId, StatusBooking status, Integer from, Integer size);
 
     List<BookingDto> bookingItemForOwnerId(Integer userId, Integer itemId);
 

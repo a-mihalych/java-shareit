@@ -7,6 +7,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemNewDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ public class ItemMapper {
                       .description(item.getDescription())
                       .available(item.getAvailable())
                       .owner(item.getOwner())
+                      .requestId(item.getItemRequest() != null ? item.getItemRequest().getId() : null)
                       .build();
     }
 
@@ -48,13 +50,14 @@ public class ItemMapper {
                    .build();
     }
 
-    public static Item toItem(ItemNewDto itemNewDto, User user) {
+    public static Item toItem(ItemNewDto itemNewDto, User user, ItemRequest itemRequest) {
         return Item.builder()
-                   .name(itemNewDto.getName())
-                   .description(itemNewDto.getDescription())
-                   .available(itemNewDto.getAvailable())
-                   .owner(user)
-                   .build();
+                .name(itemNewDto.getName())
+                .description(itemNewDto.getDescription())
+                .available(itemNewDto.getAvailable())
+                .owner(user)
+                .itemRequest(itemRequest)
+                .build();
     }
 
     public static Comment toComment(CommentNewDto commentNewDto, User user, Item item) {

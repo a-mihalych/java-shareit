@@ -21,4 +21,5 @@ public class ItemNewDto {
     private String description;
     @NotNull(message = "Статус для аренды должен быть задан")
     private Boolean available;
+    private Integer requestId;
 }

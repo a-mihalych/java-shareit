@@ -8,6 +8,8 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemNewDto;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.service.ItemRequestService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.List;
 public class ItemController {
 
     private final ItemService itemService;
+    private final ItemRequestService requestService;
 
     @GetMapping
     public List<ItemDto> itemsForId(@RequestHeader("X-Sharer-User-Id") Integer userId) {
@@ -42,7 +45,11 @@ public class ItemController {
     public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") Integer userId,
                            @Valid @RequestBody ItemNewDto itemNewDto) {
         log.info("* Запрос Post: добавление новой вещи {} пользователем с id = {}", itemNewDto, userId);
-        return itemService.addItem(userId, itemNewDto);
+        ItemRequestDto requestDto = null;
+        if (itemNewDto.getRequestId() != null) {
+            requestDto = requestService.itemsRequestById(userId, itemNewDto.getRequestId());
+        }
+        return itemService.addItem(userId, itemNewDto, requestDto);
     }
 
     @PatchMapping("/{itemId}")
