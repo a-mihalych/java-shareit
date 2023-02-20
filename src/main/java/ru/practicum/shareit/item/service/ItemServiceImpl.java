@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -43,10 +45,11 @@ public class ItemServiceImpl implements ItemService {
     private final BookingService bookingService;
 
     @Override
-    public List<ItemDto> itemsForId(Integer userId) {
+    public List<ItemDto> itemsForId(Integer userId, Integer from, Integer size) {
+        PageRequest pageRequest = PageRequest.of(from / size, size);
         List<BookingDto> bookingsDto = bookingService.bookingAllItemForUserId(userId, StatusBooking.ALL, 0, 10);
-        List<Item> items = itemRepository.findAllByOwnerIdOrderByIdAsc(userId);
         List<ItemDto> itemsDto = new ArrayList<>();
+        Page<Item> items = itemRepository.findAllByOwnerIdOrderByIdAsc(userId, pageRequest);
         BookingNextDto bookingNext;
         BookingNextDto bookingLast;
         List<Comment> comments;
@@ -89,11 +92,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItem(Integer userId, String text) {
+    public List<ItemDto> searchItem(Integer userId, String text, Integer from, Integer size) {
         if (text.isBlank()) {
             return new ArrayList<>();
         }
-        List<Item> items = itemRepository.findItem(text.toLowerCase());
+        PageRequest pageRequest = PageRequest.of(from / size, size);
+        Page<Item> items = itemRepository.findItem(text.toLowerCase(), pageRequest);
         return items.stream()
                     .map(ItemMapper::toItemDto)
                     .collect(Collectors.toList());

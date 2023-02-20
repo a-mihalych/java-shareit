@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentNewDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -12,11 +13,14 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
+@Validated
 @Slf4j
 public class ItemController {
 
@@ -24,9 +28,11 @@ public class ItemController {
     private final ItemRequestService requestService;
 
     @GetMapping
-    public List<ItemDto> itemsForId(@RequestHeader("X-Sharer-User-Id") Integer userId) {
+    public List<ItemDto> itemsForId(@RequestHeader("X-Sharer-User-Id") Integer userId,
+                                    @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                    @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("* Запрос Get: получение списка вещей по id пользователя, id = {}", userId);
-        return itemService.itemsForId(userId);
+        return itemService.itemsForId(userId, from, size);
     }
 
     @GetMapping("/{itemId}")
@@ -36,9 +42,12 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItem(@RequestHeader("X-Sharer-User-Id") Integer userId, @RequestParam String text) {
+    public List<ItemDto> searchItem(@RequestHeader("X-Sharer-User-Id") Integer userId,
+                                    @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                    @Positive @RequestParam(name = "size", defaultValue = "10") Integer size,
+                                    @RequestParam String text) {
         log.info("* Запрос Get: получение списка вещей, поиск строки '{}', пользователем с id = {}", text, userId);
-        return itemService.searchItem(userId, text);
+        return itemService.searchItem(userId, text, from, size);
     }
 
     @PostMapping
