@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +45,7 @@ class UserControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void usersAll() {
+    void usersAll() throws Exception {
         when(userService.usersAll()).thenReturn(List.of(userDto));
         mockMvc.perform(get("/users"))
                .andExpect(status().isOk())
@@ -56,8 +54,7 @@ class UserControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void userById() {
+    void userById() throws Exception {
         Integer userId = 1;
         when(userService.userById(userId)).thenReturn(userDto);
         mockMvc.perform(get("/users/{userId}", userId))
@@ -67,8 +64,7 @@ class UserControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void createUser() {
+    void createUser() throws Exception {
         UserNewDto userNewDto = UserNewDto.builder()
                 .email("user@mail.com")
                 .name("UserName")
@@ -83,8 +79,7 @@ class UserControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void updateUser() {
+    void updateUser() throws Exception {
         when(userService.updateUser(anyInt(), any(UserDto.class))).thenReturn(userDto);
         Integer userId = 1;
         mockMvc.perform(patch("/users/{userId}", userId)
@@ -96,8 +91,7 @@ class UserControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void deleteUser() {
+    void deleteUser() throws Exception {
         Integer userId = 1;
         mockMvc.perform(delete("/users/{userId}", userId))
                .andExpect(status().isOk());

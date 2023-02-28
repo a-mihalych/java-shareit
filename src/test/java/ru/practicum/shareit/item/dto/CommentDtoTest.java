@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -10,6 +9,7 @@ import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.user.model.User;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,8 +21,7 @@ class CommentDtoTest {
     private JacksonTester<CommentDto> json;
 
     @Test
-    @SneakyThrows
-    void commentDtoJson() {
+    void commentDtoJson() throws IOException {
         User user = User.builder()
                          .id(1)
                          .email("user@mail.com")

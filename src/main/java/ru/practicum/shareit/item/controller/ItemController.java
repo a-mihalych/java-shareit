@@ -17,6 +17,8 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+import static ru.practicum.shareit.ShareItApp.USER_ID;
+
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -28,7 +30,7 @@ public class ItemController {
     private final ItemRequestService requestService;
 
     @GetMapping
-    public List<ItemDto> itemsForId(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public List<ItemDto> itemsForId(@RequestHeader(USER_ID) Integer userId,
                                     @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                     @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("* Запрос Get: получение списка вещей по id пользователя, id = {}", userId);
@@ -36,13 +38,13 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto itemById(@RequestHeader("X-Sharer-User-Id") Integer userId, @PathVariable Integer itemId) {
+    public ItemDto itemById(@RequestHeader(USER_ID) Integer userId, @PathVariable Integer itemId) {
         log.info("* Запрос Get: получение вещи по id = {}, пользователем с id = {}", itemId, userId);
         return itemService.itemById(userId, itemId);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItem(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public List<ItemDto> searchItem(@RequestHeader(USER_ID) Integer userId,
                                     @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                     @Positive @RequestParam(name = "size", defaultValue = "10") Integer size,
                                     @RequestParam String text) {
@@ -51,7 +53,7 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public ItemDto addItem(@RequestHeader(USER_ID) Integer userId,
                            @Valid @RequestBody ItemNewDto itemNewDto) {
         log.info("* Запрос Post: добавление новой вещи {} пользователем с id = {}", itemNewDto, userId);
         ItemRequestDto requestDto = null;
@@ -62,7 +64,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public ItemDto updateItem(@RequestHeader(USER_ID) Integer userId,
                               @RequestBody ItemDto itemDto,
                               @PathVariable Integer itemId) {
         log.info("* Запрос Patch: обновление вещи {}, её id = {}, пользователь с id = {}", itemDto, itemId, userId);
@@ -70,7 +72,7 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto addComment(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public CommentDto addComment(@RequestHeader(USER_ID) Integer userId,
                                  @Valid @RequestBody CommentNewDto commentNewDto,
                                  @PathVariable Integer itemId) {
         log.info("* Запрос Post: добавление нового коментария {}, пользователем с id = {}, для вещи с id = {}",

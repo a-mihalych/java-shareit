@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user.dto;
 
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -8,6 +7,8 @@ import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
+
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,8 +19,7 @@ class UserDtoTest {
     private JacksonTester<UserDto> json;
 
     @Test
-    @SneakyThrows
-    void userDtoJson() {
+    void userDtoJson() throws IOException {
         User user = User.builder()
                         .id(1)
                         .email("user@mail.com")

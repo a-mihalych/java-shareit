@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,8 +49,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void itemsRequest() {
+    void itemsRequest() throws Exception {
         when(requestService.itemsRequest(anyInt())).thenReturn(List.of(requestDto));
         mockMvc.perform(get("/requests")
                         .header("X-Sharer-User-Id", userId))
@@ -61,8 +59,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void itemsRequestAll() {
+    void itemsRequestAll() throws Exception {
         when(requestService.itemsRequestAll(anyInt(), anyInt(), anyInt())).thenReturn(List.of(requestDto));
         mockMvc.perform(get("/requests/all")
                         .header("X-Sharer-User-Id", userId))
@@ -72,8 +69,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void itemsRequestById() {
+    void itemsRequestById() throws Exception {
         Integer requestId = 1;
         when(requestService.itemsRequestById(anyInt(), anyInt())).thenReturn(requestDto);
         mockMvc.perform(get("/requests/{requestId}", requestId)
@@ -84,8 +80,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void createItemRequest() {
+    void createItemRequest() throws Exception {
         ItemRequestNewDto requestNewDto = ItemRequestNewDto.builder()
                                                            .description("descriptionRequestNewDto")
                                                            .build();

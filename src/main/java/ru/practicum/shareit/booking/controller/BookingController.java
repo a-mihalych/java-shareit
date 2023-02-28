@@ -17,6 +17,8 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+import static ru.practicum.shareit.ShareItApp.USER_ID;
+
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
@@ -28,7 +30,7 @@ public class BookingController {
     private final ItemService itemService;
 
     @GetMapping
-    public List<BookingDto> bookingForUserId(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public List<BookingDto> bookingForUserId(@RequestHeader(USER_ID) Integer userId,
                                      @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                      @Positive @RequestParam(name = "size", defaultValue = "10") Integer size,
                                      @RequestParam(name = "state", defaultValue = "ALL") String state) {
@@ -41,7 +43,7 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> bookingAllItemForUserId(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public List<BookingDto> bookingAllItemForUserId(@RequestHeader(USER_ID) Integer userId,
                                     @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                     @Positive @RequestParam(name = "size", defaultValue = "10") Integer size,
                                     @RequestParam(name = "state", defaultValue = "ALL") String state) {
@@ -54,14 +56,14 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public BookingDto bookingById(@RequestHeader("X-Sharer-User-Id") Integer userId, @PathVariable Integer bookingId) {
+    public BookingDto bookingById(@RequestHeader(USER_ID) Integer userId, @PathVariable Integer bookingId) {
         log.info("* Запрос Get: получение запроса бронирования по id = {}, пользователем с id = {}", bookingId, userId);
         return bookingService.bookingById(userId, bookingId);
     }
 
 
     @PostMapping
-    public BookingDto addBooking(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public BookingDto addBooking(@RequestHeader(USER_ID) Integer userId,
                                  @Valid @RequestBody BookingNewDto bookingNewDto) {
         log.info("* Запрос Post: добавление нового запроса на бронирование вещи {}, пользователем с id = {}",
                  bookingNewDto, userId);
@@ -70,7 +72,7 @@ public class BookingController {
     }
 
     @PatchMapping("/{bookingId}")
-    public BookingDto updateBooking(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public BookingDto updateBooking(@RequestHeader(USER_ID) Integer userId,
                                     @PathVariable Integer bookingId,
                                     @RequestParam(name = "approved") Boolean status) {
         log.info("* Запрос Patch: подтверждение/отклонение бронирования вещи c id = {}," +

@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,8 +74,7 @@ class BookingControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void bookingForUserId() {
+    void bookingForUserId() throws Exception {
         when(bookingService.bookingForUserId(anyInt(), any(StatusBooking.class), anyInt(), anyInt()))
                 .thenReturn(List.of(bookingDto));
         mockMvc.perform(get("/bookings")
@@ -86,8 +84,7 @@ class BookingControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void bookingForUserId_shareitException() {
+    void bookingForUserId_shareitException() throws Exception {
         mockMvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", userId)
                         .param("state", "ERR"))
@@ -96,8 +93,7 @@ class BookingControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void bookingAllItemForUserId() {
+    void bookingAllItemForUserId() throws Exception {
         when(bookingService.bookingAllItemForUserId(anyInt(), any(StatusBooking.class), anyInt(), anyInt()))
                 .thenReturn(List.of(bookingDto));
         mockMvc.perform(get("/bookings/owner")
@@ -107,8 +103,7 @@ class BookingControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void bookingAllItemForUserId_shareitException() {
+    void bookingAllItemForUserId_shareitException() throws Exception {
         mockMvc.perform(get("/bookings/owner")
                         .header("X-Sharer-User-Id", userId)
                         .param("state", "ERR"))
@@ -117,8 +112,7 @@ class BookingControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void bookingById() {
+    void bookingById() throws Exception {
         Integer bookingId = bookingDto.getId();
         when(bookingService.bookingById(anyInt(), anyInt())).thenReturn(bookingDto);
         mockMvc.perform(get("/bookings/{bookingId}", bookingId)
@@ -128,8 +122,7 @@ class BookingControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void addBooking() {
+    void addBooking() throws Exception {
         ItemDto itemDto = ItemMapper.toItemDto(item);
         BookingNewDto bookingNewDto = BookingNewDto.builder()
                 .itemId(item.getId())
@@ -147,8 +140,7 @@ class BookingControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void updateBooking() {
+    void updateBooking() throws Exception {
         Integer bookingId = bookingDto.getId();
         when(bookingService.updateBooking(anyInt(), anyInt(), any(StatusBooking.class))).thenReturn(bookingDto);
         mockMvc.perform(patch("/bookings/{bookingId}", bookingId)

@@ -1,7 +1,9 @@
 package ru.practicum.shareit.user.dto;
 
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Setter
 @Getter
 @ToString
@@ -11,7 +13,7 @@ import lombok.*;
 @AllArgsConstructor
 public class UserDto {
 
-    private Integer id;
-    private String name;
-    private String email;
+    Integer id;
+    String name;
+    String email;
 }

@@ -1,11 +1,13 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Setter
 @Getter
 @ToString
@@ -15,11 +17,11 @@ import javax.validation.constraints.Size;
 public class ItemNewDto {
 
     @NotBlank(message = "Название не должно быть пустым")
-    private String name;
+    String name;
     @NotBlank(message = "Описание не должно быть пустым")
     @Size(max = 256, message = "Длина описания ограничена 256 символами")
-    private String description;
+    String description;
     @NotNull(message = "Статус для аренды должен быть задан")
-    private Boolean available;
-    private Integer requestId;
+    Boolean available;
+    Integer requestId;
 }

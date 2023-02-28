@@ -1,6 +1,5 @@
 package ru.practicum.shareit.request.dto;
 
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -10,6 +9,7 @@ import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,8 +21,7 @@ class ItemRequestDtoTest {
     private JacksonTester<ItemRequestDto> json;
 
     @Test
-    @SneakyThrows
-    void itemRequestDtoJson() {
+    void itemRequestDtoJson() throws IOException {
         ItemRequest request = ItemRequest.builder()
                                          .id(1)
                                          .description("descriptionItemRequest")

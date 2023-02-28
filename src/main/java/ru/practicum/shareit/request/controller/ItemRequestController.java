@@ -13,6 +13,8 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
+import static ru.practicum.shareit.ShareItApp.USER_ID;
+
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
@@ -23,13 +25,13 @@ public class ItemRequestController {
     private final ItemRequestService requestService;
 
     @GetMapping
-    public List<ItemRequestDto> itemsRequest(@RequestHeader("X-Sharer-User-Id") Integer userId) {
+    public List<ItemRequestDto> itemsRequest(@RequestHeader(USER_ID) Integer userId) {
         log.info("* Запрос Get: получение своих запросов пользователем с id = {}", userId);
         return requestService.itemsRequest(userId);
     }
 
     @GetMapping("/all")
-    public List<ItemRequestDto> itemsRequestAll(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public List<ItemRequestDto> itemsRequestAll(@RequestHeader(USER_ID) Integer userId,
                                         @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                         @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("* Запрос Get: получение запросов других пользователей пользователем с id = {}, from = {}, size = {}",
@@ -38,14 +40,14 @@ public class ItemRequestController {
     }
 
     @GetMapping("/{requestId}")
-    public ItemRequestDto itemsRequestById(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public ItemRequestDto itemsRequestById(@RequestHeader(USER_ID) Integer userId,
                                            @PathVariable Integer requestId) {
         log.info("* Запрос Get: получение запроса с id = {}, пользователем с id = {}", requestId, userId);
         return requestService.itemsRequestById(userId, requestId);
     }
 
     @PostMapping
-    public ItemRequestDto createItemRequest(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public ItemRequestDto createItemRequest(@RequestHeader(USER_ID) Integer userId,
                                             @Valid @RequestBody ItemRequestNewDto itemRequestNewDto) {
         log.info("* Запрос Post: добавление нового запроса на вещь {}, пользователем с id = {}",
                  itemRequestNewDto, userId);

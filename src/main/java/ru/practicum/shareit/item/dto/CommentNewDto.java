@@ -1,9 +1,11 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
 
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Setter
 @Getter
 @ToString
@@ -13,5 +15,5 @@ import javax.validation.constraints.NotBlank;
 public class CommentNewDto {
 
     @NotBlank(message = "Коментарий не должен быть пустым")
-    private String text;
+    String text;
 }

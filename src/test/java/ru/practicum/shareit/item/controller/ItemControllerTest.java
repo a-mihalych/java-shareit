@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +52,7 @@ class ItemControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void itemsForId() {
+    void itemsForId() throws Exception {
         when(itemService.itemsForId(anyInt(), anyInt(), anyInt())).thenReturn(List.of(itemDto));
         mockMvc.perform(get("/items")
                         .header("X-Sharer-User-Id", userId))
@@ -63,8 +61,7 @@ class ItemControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void itemById() {
+    void itemById() throws Exception {
         Integer itemId = itemDto.getId();
         when(itemService.itemById(anyInt(), anyInt())).thenReturn(itemDto);
         mockMvc.perform(get("/items/{itemId}", itemId)
@@ -74,8 +71,7 @@ class ItemControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void searchItem() {
+    void searchItem() throws Exception {
         when(itemService.searchItem(anyInt(), anyString(), anyInt(), anyInt())).thenReturn(List.of(itemDto));
         mockMvc.perform(get("/items/search")
                         .header("X-Sharer-User-Id", userId)
@@ -85,8 +81,7 @@ class ItemControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void addItem() {
+    void addItem() throws Exception {
         ItemNewDto itemNewDto = ItemNewDto.builder()
                 .name("nameItemNewDto")
                 .available(true)
@@ -102,8 +97,7 @@ class ItemControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void updateItem() {
+    void updateItem() throws Exception {
         Integer itemId = itemDto.getId();
         when(itemService.updateItem(anyInt(), any(ItemDto.class), anyInt())).thenReturn(itemDto);
         mockMvc.perform(patch("/items/{itemId}", itemId)
@@ -115,8 +109,7 @@ class ItemControllerTest {
     }
 
     @Test
-    @SneakyThrows
-    void addComment() {
+    void addComment() throws Exception {
         Integer itemId = itemDto.getId();
         CommentNewDto commentNewDto = CommentNewDto.builder()
                                                    .text("textComment")
