@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -20,6 +22,9 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.mapper.ItemRequestMapper;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
@@ -40,10 +45,11 @@ public class ItemServiceImpl implements ItemService {
     private final BookingService bookingService;
 
     @Override
-    public List<ItemDto> itemsForId(Integer userId) {
-        List<BookingDto> bookingsDto = bookingService.bookingAllItemForUserId(userId, StatusBooking.ALL);
-        List<Item> items = itemRepository.findAllByOwnerIdOrderByIdAsc(userId);
+    public List<ItemDto> itemsForId(Integer userId, Integer from, Integer size) {
+        PageRequest pageRequest = PageRequest.of(from / size, size);
+        List<BookingDto> bookingsDto = bookingService.bookingAllItemForUserId(userId, StatusBooking.ALL, 0, 10);
         List<ItemDto> itemsDto = new ArrayList<>();
+        Page<Item> items = itemRepository.findAllByOwnerIdOrderByIdAsc(userId, pageRequest);
         BookingNextDto bookingNext;
         BookingNextDto bookingLast;
         List<Comment> comments;
@@ -86,11 +92,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItem(Integer userId, String text) {
+    public List<ItemDto> searchItem(Integer userId, String text, Integer from, Integer size) {
         if (text.isBlank()) {
             return new ArrayList<>();
         }
-        List<Item> items = itemRepository.findItem(text.toLowerCase());
+        PageRequest pageRequest = PageRequest.of(from / size, size);
+        Page<Item> items = itemRepository.findItem(text.toLowerCase(), pageRequest);
         return items.stream()
                     .map(ItemMapper::toItemDto)
                     .collect(Collectors.toList());
@@ -98,9 +105,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto addItem(Integer userId, ItemNewDto itemNewDto) {
+    public ItemDto addItem(Integer userId, ItemNewDto itemNewDto, ItemRequestDto requestDto) {
         User user = UserMapper.toUser(userService.userById(userId), new User());
-        return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItem(itemNewDto, user)));
+        ItemRequest itemRequest = null;
+        if (requestDto != null) {
+            itemRequest = ItemRequestMapper.toItemRequest(requestDto, user);
+        }
+        return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItem(itemNewDto, user, itemRequest)));
     }
 
     @Override
@@ -135,5 +146,12 @@ public class ItemServiceImpl implements ItemService {
                     "пользователь с id = %d не брал в аренду вещь с id = %d", itemId, itemId));
         }
         return ItemMapper.toCommentDto(commentRepository.save(ItemMapper.toComment(commentNewDto, user, item)));
+    }
+
+    @Override
+    public List<ItemDto> itemByRequestId(Integer requestId) {
+        return itemRepository.findAllByItemRequestId(requestId).stream()
+                                                               .map(ItemMapper::toItemDto)
+                                                               .collect(Collectors.toList());
     }
 }
