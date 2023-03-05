@@ -28,7 +28,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
 
   db:
-    image: postgres:10-alpine
+    image: postgres:14-alpine
     container_name: shareit-db
     ports:
       - "6541:5432"
