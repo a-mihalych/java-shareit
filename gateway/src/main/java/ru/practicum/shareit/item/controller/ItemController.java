@@ -14,6 +14,8 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
+import java.util.List;
+
 import static ru.practicum.shareit.ShareItGateway.USER_ID;
 
 @RestController
@@ -45,6 +47,9 @@ public class ItemController {
                                     @Positive @RequestParam(name = "size", defaultValue = "10") Integer size,
                                     @RequestParam String text) {
         log.info("* Запрос Get: получение списка вещей, поиск строки '{}', пользователем с id = {}", text, userId);
+        if (text.isBlank()) {
+            List.of();
+        }
         return itemClient.searchItem(userId, text, from, size);
     }
 

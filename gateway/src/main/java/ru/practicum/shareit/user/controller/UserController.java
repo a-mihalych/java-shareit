@@ -39,7 +39,7 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public ResponseEntity<Object> updateUser(@PathVariable Integer userId, @RequestBody UserDto userDto) {
+    public ResponseEntity<Object> updateUser(@PathVariable Integer userId, @Valid @RequestBody UserDto userDto) {
         log.info("* Запрос Patch: обновление пользователя с  id = {}, пользователь: {}", userId, userDto);
         return userClient.updateUser(userId, userDto);
     }

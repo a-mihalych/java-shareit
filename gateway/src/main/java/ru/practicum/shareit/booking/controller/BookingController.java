@@ -11,6 +11,7 @@ import ru.practicum.shareit.booking.client.BookingClient;
 import ru.practicum.shareit.booking.dto.BookingNewDto;
 import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.error.exception.ShareitException;
+import ru.practicum.shareit.error.exception.ValidationException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -43,6 +44,11 @@ public class BookingController {
 			@RequestBody @Valid BookingNewDto bookingNewDto) {
 		log.info("* Запрос Post: добавление нового запроса на бронирование вещи {}, пользователем с id = {}",
 				 bookingNewDto, userId);
+		if (!bookingNewDto.getEnd().isAfter(bookingNewDto.getStart())) {
+			throw new ValidationException(String.format("Создание прервано, " +
+														"дата начала %s должна быть раньше даты конца %s",
+														bookingNewDto.getStart(), bookingNewDto.getEnd()));
+		}
 		return bookingClient.addBooking(userId, bookingNewDto);
 	}
 
