@@ -48,7 +48,7 @@ public class ItemController {
                                     @RequestParam String text) {
         log.info("* Запрос Get: получение списка вещей, поиск строки '{}', пользователем с id = {}", text, userId);
         if (text.isBlank()) {
-            List.of();
+            return ResponseEntity.ok(List.of());
         }
         return itemClient.searchItem(userId, text, from, size);
     }
